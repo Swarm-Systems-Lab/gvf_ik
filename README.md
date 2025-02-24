@@ -40,6 +40,11 @@ This project includes:
 * Visualization of Paparazzi UAV telemetry data from experiments
 * Animations of both telemetry and simulation data
 
+This project has been implemented to run on a flight controller using the Paparazzi UAV framework.  
+You can find the implementation in the following repository:
+
+🔗 **[IK-GVF for Paparazzi UAV](https://github.com/Swarm-Systems-Lab/paparazzi/tree/gvf_ik)**  
+
 ## Quick Install
 
 To install, simply run:
