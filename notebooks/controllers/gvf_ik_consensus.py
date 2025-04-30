@@ -175,7 +175,6 @@ class GvfIKCons(Controller):
         # CONSENSUS -------------------------------------------------------------------
         A_ctrl = np.zeros(N) 
         if self.pos_buff.max_period_flag:
-            buff_n = self.pos_buff.size
             buff_p = np.array(self.pos_buff.get_valid_items())
 
             p_mean = np.mean(buff_p, 0)

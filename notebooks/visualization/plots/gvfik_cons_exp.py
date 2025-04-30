@@ -1,17 +1,14 @@
 """
 """
 
-__all__ = ["PlotExpGvfIkCons"]
+__all__ = ["PlotGvfIkConsExp"]
 
 import numpy as np
-import matplotlib.pyplot as plt
 
 # Graphic tools
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 # Import tools from the Swarm Systems Lab Python Simulator
-from ssl_simulator import load_data, parse_kwargs
 from ssl_simulator.math import pprz_angle
 from ssl_simulator.visualization import fixedwing_patch, config_data_axis
 from ssl_simulator.visualization import smooth_interpolation
@@ -22,7 +19,7 @@ COLORS_PATCH = ["turquoise", "red"]
 COLORS = ["turquoise", "red"]
 COLORS_D = ["#20B2AA", "darkred"]
 
-class PlotExpGvfIkCons:
+class PlotGvfIkConsExp:
     def __init__(self, data1, data2, **kw_patch):
         
         # Extract the data
