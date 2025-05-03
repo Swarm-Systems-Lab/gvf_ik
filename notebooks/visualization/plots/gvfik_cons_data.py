@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 
 from collections.abc import Iterable
 from ssl_simulator.visualization import fixedwing_patch
+from ssl_simulator.components.gvf import GvfTrajectoryPlotter
 
 A_FIT = 1.35
 
@@ -52,9 +53,6 @@ class PlotGvfIkConsData:
         y = np.array(self.data["p"].tolist())[1:,:,1]
         theta = np.array(self.data["theta"].tolist())
 
-        gvf_s = np.array(self.data["s"].tolist())[0]
-        gvf_ke = np.array(self.data["ke"].tolist())[0]
-
         N = x.shape[1]
 
         # ------------------------------------------------
@@ -71,11 +69,11 @@ class PlotGvfIkConsData:
         # Plot the GVF
         if isinstance(self.gvf_traj, Iterable):
             for i in range(len(self.gvf_traj)):
-                self.gvf_traj[i].gen_vector_field(area=1000, s=gvf_s, ke=gvf_ke)
-                self.gvf_traj[i].draw(self.fig_gvf, self.ax_gvf, lw=1.4, draw_field=False)
-        else:
-                self.gvf_traj.gen_vector_field(area=1000, s=gvf_s, ke=gvf_ke)
-                self.gvf_traj.draw(self.fig_gvf, self.ax_gvf, lw=1.4, draw_field=False)
+                gvf_traj_plotter = GvfTrajectoryPlotter(self.gvf_traj[i], self.fig_gvf, self.ax_gvf)
+                gvf_traj_plotter.draw(lw=1.4, draw_field=False)
+        else:   
+                gvf_traj_plotter = GvfTrajectoryPlotter(self.gvf_traj, self.fig_gvf, self.ax_gvf)
+                gvf_traj_plotter.draw(lw=1.4, draw_field=False)
 
         return self.ax_gvf
         

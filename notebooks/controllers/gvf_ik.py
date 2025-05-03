@@ -5,7 +5,7 @@ __all__ = ["GvfIK"]
 
 import numpy as np
 
-from ssl_simulator.controllers import Controller
+from ssl_simulator import Controller
 
 #######################################################################################
 

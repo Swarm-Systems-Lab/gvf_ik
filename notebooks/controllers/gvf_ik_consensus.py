@@ -6,7 +6,7 @@ __all__ = ["GvfIKCons"]
 import numpy as np
 from collections.abc import Iterable
 
-from ssl_simulator.controllers import Controller
+from ssl_simulator import Controller
 
 from ssl_simulator.math import build_B
 from .utils import CircularBuffer

@@ -13,9 +13,9 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 # Import visualization tools and GVF trajectory from the Swarm Systems Lab Simulator
-from ssl_simulator.math import pprz_angle
+from ssl_simulator import pprz_angle
 from ssl_simulator.visualization import fixedwing_patch
-from ssl_simulator.gvf_trajectories import GvfEllipse
+from ssl_simulator.components.gvf import GvfEllipse, GvfTrajectoryPlotter
 
 __all__ = ["AnimationTelemetry"]
 
@@ -174,11 +174,13 @@ class AnimationTelemetry:
 
         # -----------------------------------------------------------------------------
         # Draw the trajectory the level set
-        self.gvf_traj.draw(self.fig, self.ax, lw=1.4, draw_field=False)
+        gvf_traj_plotter = GvfTrajectoryPlotter(self.gvf_traj, self.fig, self.ax)
+        gvf_traj_plotter.draw(lw=1.4, draw_field=False)
 
         # Draw level set
-        self.traj_levelset = gvf_traj_ls.draw(
-            self.fig, self.ax, lw=1, draw_field=False, color="r"
+        gvf_traj_plotter = GvfTrajectoryPlotter(gvf_traj_ls, self.fig, self.ax)
+        self.traj_levelset = gvf_traj_plotter.draw(
+            lw=1, draw_field=False, color="r"
         )
         self.traj_levelset.set_alpha(0)
 

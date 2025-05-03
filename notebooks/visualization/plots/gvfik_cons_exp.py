@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Import tools from the Swarm Systems Lab Python Simulator
-from ssl_simulator.math import pprz_angle
+from ssl_simulator import pprz_angle
 from ssl_simulator.visualization import fixedwing_patch, config_data_axis
 from ssl_simulator.visualization import smooth_interpolation
 

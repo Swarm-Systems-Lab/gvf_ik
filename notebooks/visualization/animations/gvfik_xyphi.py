@@ -15,7 +15,7 @@ from matplotlib.animation import FuncAnimation
 # Import visualization tools and GVF trajectory from the Swarm Systems Lab Simulator
 from ssl_simulator import parse_kwargs
 from ssl_simulator.visualization import fixedwing_patch, config_data_axis
-from ssl_simulator.gvf_trajectories import GvfEllipse
+from ssl_simulator.components.gvf import GvfTrajectoryPlotter
 
 #######################################################################################
 
@@ -122,7 +122,8 @@ class AnimationXYPhi:
 
         # -----------------------------------------------------------------------------
         # Draw the trajectory the level set
-        self.gvf_traj.draw(self.fig, self.ax, lw=1.4, draw_field=False)
+        gvf_traj_plotter = GvfTrajectoryPlotter(self.gvf_traj, self.fig, self.ax)
+        gvf_traj_plotter.draw(lw=1.4, draw_field=False)
 
         # Draw level set
         self.traj_levelset = gvf_traj_ls.draw(

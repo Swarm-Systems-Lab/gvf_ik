@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 # Import tools from the Swarm Systems Lab Python Simulator
-from ssl_simulator import load_data, parse_kwargs
-from ssl_simulator.math import pprz_angle
+from ssl_simulator import load_pprz_data, parse_kwargs
+from ssl_simulator import pprz_angle
 from ssl_simulator.visualization import fixedwing_patch, config_data_axis
 from ssl_simulator.visualization import smooth_interpolation
 
