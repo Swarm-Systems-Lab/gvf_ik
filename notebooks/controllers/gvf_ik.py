@@ -39,23 +39,18 @@ class GvfIK(Controller):
             "gamma_A": self.A,
             "gamma_omega": self.omega,
             "gamma": None,
+            "gamma_dot": None,
             "phi": None,
             "e": None,
             "omega_d": None
         }
 
+        self.tracked_settings = {
+            "gvf_traj": gvf_traj,
+        }
+
         # Controller data
         self.init_data()
-
-    def clip_omega(self, omega): #TODO: implement into robot model
-        """
-        Function to bound the value of omega
-        """
-        max_w = np.pi/2
-        w_clipped = np.copy(omega)
-        for i in range(self.N):
-            w_clipped[i] = np.clip(omega[i], -max_w, max_w)
-        return w_clipped
     
     def check_alpha(self, J1, J2, phi, gamma, gamma_dot, speed):
         """
@@ -89,6 +84,7 @@ class GvfIK(Controller):
             raise ValueError("Constraint violated: A * omega must be ≤ speed!")
 
         self.tracked_vars["gamma"] = np.zeros((N))
+        self.tracked_vars["gamma_dot"] = np.zeros((N))
         self.tracked_vars["omega_d"] = np.zeros((N))
         self.control_vars["u"] = np.zeros((N))            
         for i in range(N):
@@ -118,7 +114,7 @@ class GvfIK(Controller):
             
             J_Jt = (J1*J1 + J2*J2)
 
-             # 2. Compute th feedforward error
+            # 2. Compute the feedforward error
             gamma = A_fd * np.sin(omega_fd * time)
             gamma_dot = omega_fd * A_fd * np.cos(omega_fd * time)
 
@@ -165,10 +161,11 @@ class GvfIK(Controller):
                 pd_dot_x = speed_i * un_x / un_norm
                 pd_dot_y = speed_i * un_y / un_norm
 
+            # 6. Compute ut_dot
             ut_dot_x = s * (H12 * pd_dot_x + H22 * pd_dot_y)
             ut_dot_y = - s * (H11 * pd_dot_x + H21 * pd_dot_y) 
 
-            # 6. Compute un_dot
+            # 7. Compute un_dot
             u_dot = - ke * (J1*pd_dot_x + J2*pd_dot_y + e_tdot)
 
             un_dot_A_x = (pd_dot_x*H11 + pd_dot_y*H21)
@@ -185,7 +182,7 @@ class GvfIK(Controller):
             un_dot_x = (un_dot_A_x + un_dot_B_x) * (u - e_tdot) / J_Jt + un_dot_C_x
             un_dot_y = (un_dot_A_y + un_dot_B_y) * (u - e_tdot) / J_Jt + un_dot_C_y
 
-            # 7. Compute omega_d and omega
+            # 8. Compute omega_d and omega
             if cond_flag:
                 alpha_dot = - (un_x*un_dot_x + un_y*un_dot_y) / (alpha)
                 Bpd_ddot_x = alpha * (ut_dot_x / ut_norm + (ut_x*ut_x*ut_dot_x - ut_x*ut_y*ut_dot_y) / ut_norm3)
@@ -206,6 +203,7 @@ class GvfIK(Controller):
 
             # -----------------------
             self.tracked_vars["gamma"][i] = gamma
+            self.tracked_vars["gamma_dot"][i] = gamma_dot
             self.tracked_vars["omega_d"][i] = omega_d
             self.control_vars["u"][i] = omega
             # -----------------------

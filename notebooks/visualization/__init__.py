@@ -9,7 +9,7 @@ from .animations.osc_avg import *
 from .animations.osc_inst import *
 
 from .plots.basic_gamma import *
-from .plots.basic_gvf import *
+from .plots.basic_gvfik import *
 from .plots.basic import *
 
 from .plots.gvfik_cons_exp import *
