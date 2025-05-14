@@ -25,7 +25,10 @@ from matplotlib.animation import PillowWriter
 
 #######################################################################################
 # Import the Main Module of the Project
-import ssl_simulator
+from ssl_simulator import *
+
+add_src_to_path("", deep=0)
+from sim_core import *
 
 #######################################################################################
 
