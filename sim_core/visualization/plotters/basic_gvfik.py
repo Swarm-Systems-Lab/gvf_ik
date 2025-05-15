@@ -83,8 +83,8 @@ class PlotterGvfIK(Plotter):
         plt.rcParams['text.latex.preamble'] = r'\usepackage{amssymb}'
 
         arr = self.ax.scatter([], [], c=self.kw_field["color"], alpha=self.kw_field["alpha"],
-                                marker=r"$\uparrow$", s=60, label=r"$f(\phi(p),t_f)$")
-        reg = mpatches.Patch(color='grey', alpha=0.2, label=r"$\{p \in \mathbb{R}^2 \; : \; \|\vartheta(p)\| < v\}$")
+                                marker=r"$\uparrow$", s=60, label=r"$f(\phi(p),t)$")
+        reg = mpatches.Patch(color='grey', alpha=0.2, label=r"$\{p \in \mathbb{R}^2 \; : \; \|\vartheta(p,t)\| < v\}$")
         self.ax.legend(handles=[arr, reg], fancybox=True, prop={"size": 16}, ncols=2, loc="upper left")
 
     def update(self):

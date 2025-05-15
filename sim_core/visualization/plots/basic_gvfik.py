@@ -87,7 +87,7 @@ class PlotBasicGvfIK:
                 # Legend elements
                 arr = self.ax.scatter([], [], c=kw_field["color"], alpha=kw_field["alpha"],
                                       marker=r"$\uparrow$", s=60, label=r"$f(\phi(p),t_f)$")
-                reg = mpatches.Patch(color='grey', alpha=0.2, label=r"$\{p \in \mathbb{R}^2 \; : \; \|\vartheta(p)\| < v\}$")
+                reg = mpatches.Patch(color='grey', alpha=0.2, label=r"$\{p \in \mathbb{R}^2 \; : \; \|\vartheta(p,t_f)\| < v\}$")
 
                 self.ax.legend(handles=[arr, reg], fancybox=True, prop={"size": 10}, ncols=2, loc="upper left")
 
@@ -99,7 +99,7 @@ class PlotBasicGvfIK:
                 plt.rcParams['text.usetex'] = False
                 arr = self.ax.scatter([], [], c=kw_field["color"], alpha=kw_field["alpha"],
                                       marker=r"$\uparrow$", s=60, label="f(\phi(p),t_f)")
-                reg = mpatches.Patch(color='grey', alpha=0.2, label="{p in R² : ||\vartheta(p)|| < v}")
+                reg = mpatches.Patch(color='grey', alpha=0.2, label="{p in R² : ||\vartheta(p,t_f)|| < v}")
 
                 self.ax.legend(handles=[arr, reg], fancybox=True, prop={"size": 10}, ncols=2, loc="upper left")
 
