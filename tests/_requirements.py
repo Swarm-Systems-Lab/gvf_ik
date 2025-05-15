@@ -28,6 +28,7 @@ from matplotlib.animation import PillowWriter
 from ssl_simulator import *
 
 add_src_to_path("", deep=0)
+from apps import *
 from sim_core import *
 
 #######################################################################################
