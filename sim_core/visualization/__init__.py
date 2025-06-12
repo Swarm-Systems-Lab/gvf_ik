@@ -2,9 +2,6 @@ from .animations.gvfik_cons_exp import *
 from .animations.gvfik_cons_interp import *
 from .animations.gvfik_cons_interp2 import *
 from .animations.gvfik_cons_sim import *
-from .animations.gvfik_exp import *
-from .animations.gvfik_xy import *
-from .animations.gvfik_xyphi import *
 from .animations.osc_avg import *
 from .animations.osc_inst import *
 
