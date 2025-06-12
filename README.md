@@ -1,6 +1,6 @@
 # Inverse Kinematics on Guiding Vector Fields for Robot Path Following
 
-![](assets/demo.gif)
+![](assets/gvfik.gif)
 
 ## Research paper
 
