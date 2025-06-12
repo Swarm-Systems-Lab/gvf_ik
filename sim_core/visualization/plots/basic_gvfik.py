@@ -1,19 +1,20 @@
 """
 """
 
-__all__ = ["PlotBasicGvf"]
+__all__ = ["PlotBasicGvfIK"]
 
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
+# Import visualization tools from the Swarm Systems Lab Simulator
 from ssl_simulator import parse_kwargs, load_class
 from ssl_simulator.visualization import config_axis, fixedwing_patch
-from ssl_simulator.components.gvf import GvfIkTrajectoryPlotter
+from ssl_simulator.components.gvf import PlotterGvfIk
 
 #######################################################################################
 
-class PlotBasicGvf:
+class PlotBasicGvfIK:
     def __init__(self, data, settings, **kwargs):
         self.data = data
         self.gvf_traj = load_class(
@@ -73,8 +74,8 @@ class PlotBasicGvf:
                         s=s, ke=ke, gamma=gamma, gamma_dot=gamma_dot, speed=speed)
         kw_field = parse_kwargs(kwargs, kw_field)
  
-        gvf_traj_plotter = GvfIkTrajectoryPlotter(self.gvf_traj, self.fig, self.ax)
-        gvf_traj_plotter.draw(draw_field=draw_field, **kw_field)
+        gvf_plotter = PlotterGvfIk(self.gvf_traj, self.ax)
+        gvf_plotter.draw(draw_field=draw_field, **kw_field)
 
         # Plot the legend
         if draw_field:
@@ -86,7 +87,7 @@ class PlotBasicGvf:
                 # Legend elements
                 arr = self.ax.scatter([], [], c=kw_field["color"], alpha=kw_field["alpha"],
                                       marker=r"$\uparrow$", s=60, label=r"$f(\phi(p),t_f)$")
-                reg = mpatches.Patch(color='grey', alpha=0.2, label=r"$\{p \in \mathbb{R}^2 \; : \; \|\vartheta(p)\| < v\}$")
+                reg = mpatches.Patch(color='grey', alpha=0.2, label=r"$\{p \in \mathbb{R}^2 \; : \; \|\vartheta(p,t_f)\| < v\}$")
 
                 self.ax.legend(handles=[arr, reg], fancybox=True, prop={"size": 10}, ncols=2, loc="upper left")
 
@@ -98,7 +99,7 @@ class PlotBasicGvf:
                 plt.rcParams['text.usetex'] = False
                 arr = self.ax.scatter([], [], c=kw_field["color"], alpha=kw_field["alpha"],
                                       marker=r"$\uparrow$", s=60, label="f(\phi(p),t_f)")
-                reg = mpatches.Patch(color='grey', alpha=0.2, label="{p in R² : ||\vartheta(p)|| < v}")
+                reg = mpatches.Patch(color='grey', alpha=0.2, label="{p in R² : ||\vartheta(p,t_f)|| < v}")
 
                 self.ax.legend(handles=[arr, reg], fancybox=True, prop={"size": 10}, ncols=2, loc="upper left")
 

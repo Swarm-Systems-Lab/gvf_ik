@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 from collections.abc import Iterable
 from ssl_simulator.visualization import fixedwing_patch
-from ssl_simulator.components.gvf import GvfTrajectoryPlotter
+from ssl_simulator.components.gvf import PlotterGvf
 
 A_FIT = 1.35
 
@@ -69,10 +69,10 @@ class PlotGvfIkConsData:
         # Plot the GVF
         if isinstance(self.gvf_traj, Iterable):
             for i in range(len(self.gvf_traj)):
-                gvf_traj_plotter = GvfTrajectoryPlotter(self.gvf_traj[i], self.fig_gvf, self.ax_gvf)
+                gvf_traj_plotter = PlotterGvf(self.gvf_traj[i], self.ax_gvf)
                 gvf_traj_plotter.draw(lw=1.4, draw_field=False)
         else:   
-                gvf_traj_plotter = GvfTrajectoryPlotter(self.gvf_traj, self.fig_gvf, self.ax_gvf)
+                gvf_traj_plotter = PlotterGvf(self.gvf_traj, self.ax_gvf)
                 gvf_traj_plotter.draw(lw=1.4, draw_field=False)
 
         return self.ax_gvf

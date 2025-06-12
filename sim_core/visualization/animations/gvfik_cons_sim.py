@@ -16,7 +16,7 @@ from matplotlib.animation import FuncAnimation
 # Import tools from the Swarm Systems Lab Python Simulator
 from ssl_simulator import parse_kwargs
 from ssl_simulator.visualization import fixedwing_patch, config_data_axis
-from ssl_simulator.components.gvf import GvfTrajectoryPlotter
+from ssl_simulator.components.gvf import PlotterGvf
 
 #######################################################################################
 
@@ -117,10 +117,10 @@ class AnimationGvfIkConsInterpSim:
         # Plot the GVF
         if isinstance(self.gvf_traj, Iterable):
             for i in range(len(self.gvf_traj)):
-                gvf_traj_plotter = GvfTrajectoryPlotter(self.gvf_traj[i], self.fig, self.ax)
+                gvf_traj_plotter = PlotterGvf(self.gvf_traj[i], self.ax)
                 gvf_traj_plotter.draw(lw=1.4, draw_field=False)
         else:   
-                gvf_traj_plotter = GvfTrajectoryPlotter(self.gvf_traj, self.fig, self.ax)
+                gvf_traj_plotter = PlotterGvf(self.gvf_traj, self.ax)
                 gvf_traj_plotter.draw(lw=1.4, draw_field=False)
 
         if self.debug:
