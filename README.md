@@ -1,5 +1,7 @@
 # Inverse Kinematics on Guiding Vector Fields for Robot Path Following
 
+![](assets/demo.gif)
+
 ## Research paper
 
 **ABSTRACT:** Inverse kinematics is a fundamental technique for
