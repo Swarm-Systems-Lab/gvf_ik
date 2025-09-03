@@ -6,6 +6,7 @@ from .animations.osc_avg import *
 from .animations.osc_inst import *
 
 from .plots.basic_gamma import *
+from .plots.basic_gvfik_cbf import *
 from .plots.basic_gvfik import *
 from .plots.basic import *
 
