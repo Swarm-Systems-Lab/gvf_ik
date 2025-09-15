@@ -2,8 +2,15 @@
 
 ![](assets/A_to_B.gif)
 
-## Related research paper
+## Related research papers
 
+    @misc{yuzhoujesusbautista2024ikgvf,
+      title={Inverse Kinematics on Guiding Vector Fields for Robot Path Following}, 
+      author={Yu Zhou, Jesus Bautista, Weijia Yao, Hector Garcia de Marina},
+      year={2025},
+      booktitle={2025 IEEE International Conference on Robotics and Automation (ICRA)}, 
+    }
+    
     @article{jesusbv2024bcf,
       title={Behavioral-based circular formation control for robot swarms},
       author={Bautista, Jesús and de Marina, Héctor García},
