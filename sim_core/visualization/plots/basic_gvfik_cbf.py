@@ -21,6 +21,7 @@ class PlotBasicGvfIKCBF:
             "ssl_simulator.components.gvf",
             settings["gvf_traj"]["__class__"], **settings["gvf_traj"]["__params__"]
         )
+        self.settings = settings
         self.kw_ax = kwargs
 
         # Default visual properties
@@ -49,8 +50,8 @@ class PlotBasicGvfIKCBF:
         # Extract derired data
         x = self.data["p"][:,:,0]
         y = self.data["p"][:,:,1]
-        s = self.data["s"][-1]
-        ke = self.data["ke"][-1]
+        s = self.settings["s"]
+        ke = self.settings["ke"]
         speed = self.data["speed"][-1,0]
 
         # Plot the robots

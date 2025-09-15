@@ -33,11 +33,6 @@ class GvfIK(Controller):
 
         # Controller variables to be tracked by logger
         self.tracked_vars = {
-            "s": self.s,
-            "ke": self.ke,
-            "kn": self.kn,
-            "gamma_A": self.A,
-            "gamma_omega": self.omega,
             "gamma": None,
             "gamma_dot": None,
             "phi": None,
@@ -46,6 +41,11 @@ class GvfIK(Controller):
         }
 
         self.tracked_settings = {
+            "s": self.s,
+            "ke": self.ke,
+            "kn": self.kn,
+            "gamma_A": self.A,
+            "gamma_omega": self.omega,
             "gvf_traj": gvf_traj,
         }
 

@@ -1,7 +1,7 @@
 """
 """
 
-__all__ = ["AnimationGvfIkConsInterpSim"]
+__all__ = ["AnimationGvfIkCBFSim"]
 
 import numpy as np
 from tqdm import tqdm
@@ -14,16 +14,20 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 # Import tools from the Swarm Systems Lab Python Simulator
-from ssl_simulator import parse_kwargs
+from ssl_simulator import parse_kwargs, load_class
 from ssl_simulator.visualization import fixedwing_patch, config_data_axis
 from ssl_simulator.components.gvf import PlotterGvf
 
 #######################################################################################
 
-class AnimationGvfIkConsInterpSim:
-    def __init__(self, data, gvf_traj, debug=False, **kwargs):
+class AnimationGvfIkCBFSim:
+    def __init__(self, data, settings, debug=False, **kwargs):
         self.data = data
-        self.gvf_traj = gvf_traj
+        self.gvf_traj = load_class(
+            "ssl_simulator.components.gvf",
+            settings["gvf_traj"]["__class__"], **settings["gvf_traj"]["__params__"]
+        )
+        self.kw_ax = kwargs
         self.debug = debug
 
         # -----------------------------------------------------------------------------
@@ -32,15 +36,14 @@ class AnimationGvfIkConsInterpSim:
         self.xdata = np.array(data["p"].tolist())[:,:,0]
         self.ydata = np.array(data["p"].tolist())[:,:,1]
         self.theta_data = np.array(self.data["theta"].tolist())
+        self.speed = np.array(self.data["speed"].tolist())
 
-        self.gvf_s = np.array(self.data["s"].tolist())[0]
-        self.gvf_ke = np.array(self.data["ke"].tolist())[0]
-        self.Z = np.array(self.data["Z"].tolist())[0,:,:]
+        self.obstacles = settings["obstacles"]
+        self.col_rad = settings["col_rad"]
+        self.gvf_s = settings["s"]
+        self.gvf_ke = settings["ke"]
 
         self.N = self.xdata.shape[1]
-
-        if self.debug:
-            print(self.ydata[-1,:])
 
         # -----------------------------------------------------------------------------
 
@@ -60,13 +63,13 @@ class AnimationGvfIkConsInterpSim:
         kw_patch = {
             "fc": "None",
             "ec": "red",
-            "size": 15,
+            "size": 12,
             "lw": 1,
             "zorder": 3,
         }
 
         kw_line = {
-            "c": "b",
+            "c": "red",
             "ls": "-",
             "lw": 1.2,
             "alpha": 0.7,
@@ -83,45 +86,48 @@ class AnimationGvfIkConsInterpSim:
         self.init_figure()
 
     def config_axes(self):
-        self.ax.set_xlabel(r"$X$ [m]")
-        self.ax.set_ylabel(r"$Y$ [m]")
+        self.ax.set_xlabel(r"$X$ [L]")
+        self.ax.set_ylabel(r"$Y$ [L]")
         self.ax.set_aspect("equal")
         config_data_axis(self.ax, **self.kw_ax)
 
     def init_figure(self):
         # Configure axes for plotting
         self.config_axes()
-        self.ax.set_title(r"$k_A = 1.35$, $k_u = 0.16$, $w_\gamma = 0.6$rad/s")
 
         self.ax_lines = []
         self.ax_patch = []
+        self.ax_patch_coll = []
         for i in range(self.N):
-            line, = self.ax.plot(self.xdata[0,i], self.ydata[0,i], **self.kw_line)
-            self.ax_lines.append(line)
-
-            patch = fixedwing_patch(
-                [self.xdata[0,i], self.ydata[0,i]], self.theta_data[0,i], 
-                **self.kw_patch)
+            if i not in self.obstacles:
+                line, = self.ax.plot(self.xdata[0,i], self.ydata[0,i], **self.kw_line)
+                patch = fixedwing_patch(
+                    [self.xdata[0,i], self.ydata[0,i]], self.theta_data[0,i], 
+                    **self.kw_patch)
+                patch_coll = plt.Circle((0,0),0) # Dummy
+            else:
+                kw_line = parse_kwargs(dict(c="grey"), self.kw_line)
+                line, = self.ax.plot(self.xdata[0,i], self.ydata[0,i], **kw_line)
+                patch = plt.Circle(
+                    (self.xdata[0,i], self.ydata[0,i]), radius=self.col_rad/3, 
+                    fc="lightgrey", ec="black", lw=1, zorder=1)
+                patch_coll = plt.Circle(
+                    (self.xdata[0,i], self.ydata[0,i]), radius=self.col_rad, 
+                    fc="None", ec="black", lw=1, ls="--", zorder=1)
             
+            self.ax_lines.append(line)
             self.ax_patch.append(patch)
+            self.ax_patch_coll.append(patch_coll)
             self.ax.add_artist(patch)
-
-        # Plot the graph
-        self.ax_edge_lines = []
-        for edge in self.Z:
-            i,j = edge
-            ax_edge_line, = self.ax.plot([self.xdata[0,i], self.xdata[0,j]], 
-                                        [self.ydata[0,i], self.ydata[0,j]], "--", c="grey")
-            self.ax_edge_lines.append(ax_edge_line)
+            self.ax.add_artist(patch_coll)
 
         # Plot the GVF
-        if isinstance(self.gvf_traj, Iterable):
-            for i in range(len(self.gvf_traj)):
-                gvf_traj_plotter = PlotterGvf(self.gvf_traj[i], self.ax)
-                gvf_traj_plotter.draw(lw=1.4, draw_field=False)
-        else:   
-                gvf_traj_plotter = PlotterGvf(self.gvf_traj, self.ax)
-                gvf_traj_plotter.draw(lw=1.4, draw_field=False)
+        self.kw_field = dict(
+            color="grey", alpha=0.5, zorder=1, lw=2, pts=30,
+            s=self.gvf_s, ke=self.gvf_ke, gamma=0, gamma_dot=0, speed=self.speed[0])
+
+        gvf_traj_plotter = PlotterGvf(self.gvf_traj, self.ax)
+        gvf_traj_plotter.draw(**self.kw_field)
 
         if self.debug:
             plt.show()
@@ -135,21 +141,27 @@ class AnimationGvfIkConsInterpSim:
 
                 # Update the icon
                 self.ax_patch[i].remove()
+                self.ax_patch_coll[i].remove()
 
-                self.ax_patch[i] = fixedwing_patch(
-                    [self.xdata_anim[iframe,i], self.ydata_anim[iframe,i]], 
-                    self.theta_data_anim[iframe,i], 
-                    **self.kw_patch)
+                if i not in self.obstacles:
+                    self.ax_patch[i] = fixedwing_patch(
+                        [self.xdata_anim[iframe,i], self.ydata_anim[iframe,i]], 
+                        self.theta_data_anim[iframe,i], 
+                        **self.kw_patch)
+                    self.ax_patch_coll[i] = plt.Circle((0,0),0) # Dummy
+                else:
+                    self.ax_patch[i] = plt.Circle(
+                        (self.xdata_anim[iframe,i], self.ydata_anim[iframe,i]), 
+                        radius=self.col_rad/3, 
+                        fc="lightgrey", ec="black", lw=1, zorder=1)
+                    self.ax_patch_coll[i] = plt.Circle(
+                        (self.xdata_anim[iframe,i], self.ydata_anim[iframe,i]), radius=self.col_rad, 
+                        fc="None", ec="black", lw=1, ls="--", zorder=1)
                 
                 self.ax_patch[i].set_zorder(10)
+                self.ax_patch_coll[i].set_zorder(10)
                 self.ax.add_patch(self.ax_patch[i])
-
-                # Update graph lines
-                for idx, edge in enumerate(self.Z):
-                    i,j = edge
-                    self.ax_edge_lines[idx].set_data(
-                        [self.xdata_anim[iframe,i], self.xdata_anim[iframe,j]], 
-                        [self.ydata_anim[iframe,i], self.ydata_anim[iframe,j]])
+                self.ax.add_patch(self.ax_patch_coll[i])
     
     def gen_animation(self, fps=None, factor=1, wait_period=3):
         """

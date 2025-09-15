@@ -10,7 +10,8 @@ from ssl_simulator import Controller
 #######################################################################################
 
 class GvfIK_CBF(Controller):
-    def __init__(self, gvf_traj, s, ke, kn, obstacles = [], gamma=0.5, col_rad=20):
+    def __init__(self, gvf_traj, s, ke, kn, obstacles = [], gamma=0.5, col_rad=20,
+                 max_omega = np.inf, **kwargs):
 
         # Controller settings
         self.gvf_traj = gvf_traj
@@ -22,6 +23,7 @@ class GvfIK_CBF(Controller):
 
         self.gamma = gamma
         self.col_rad = col_rad
+        self.max_omega = max_omega
 
         # Controller variables
         self.phi = None #np.zeros(self.N)
@@ -35,12 +37,6 @@ class GvfIK_CBF(Controller):
 
         # Controller variables to be tracked by logger
         self.tracked_vars = {
-            "s": self.s,
-            "ke": self.ke,
-            "kn": self.kn,
-            "gamma": self.gamma,
-            "col_rad": self.col_rad,
-            #
             "phi": None,
             "e": None,
             "omega_d": None,
@@ -51,20 +47,26 @@ class GvfIK_CBF(Controller):
         }
 
         self.tracked_settings = {
+            "s": self.s,
+            "ke": self.ke,
+            "kn": self.kn,
+            "gamma": self.gamma,
+            "col_rad": self.col_rad,
             "gvf_traj": gvf_traj,
+            "obstacles": self.obstacles,
         }
 
         # Controller data
         self.init_data()
     
-    def check_alpha(self, J1, J2, phi, speed):
+    def check_alpha(self, J1, J2, phi, gamma, gamma_dot, speed):
         """
         """
         J_Jt = (J1*J1 + J2*J2)
 
         # Compute th feedforward error
-        e = phi
-        e_tdot = 0
+        e = phi + gamma
+        e_tdot = gamma_dot
 
         # Compute the input term of p_dot (normal term)
         u = - self.ke * e
@@ -78,7 +80,7 @@ class GvfIK_CBF(Controller):
         return un_norm2 < speed*speed
     
     def compute_cbf(self, state):
-        omega_ref = self.control_vars["u"]
+        omega_ref = np.copy(self.control_vars["u"])
         gamma = self.gamma
         col_rad = self.col_rad
 
@@ -102,6 +104,11 @@ class GvfIK_CBF(Controller):
 
             psi_lgh_k = []
             for k in [k for k in range(N) if k!=i]:
+
+                # Ignore obstacles we've left behind (experimental)
+                if P[i,0] > P[k,0] + self.col_rad:
+                    continue
+
                 # p_rel
                 prel = P[k,:] - P[i,:]
                 prel_sqr = np.dot(prel, prel)
@@ -113,8 +120,10 @@ class GvfIK_CBF(Controller):
 
                 # vk = state["speed"][k]
                 # phik = state["theta"][k]
-                vk = 0
-                phik = 0
+                # Since obstables do not collaborate, assume they are static to avoid
+                # numerical issues
+                vk = state["speed"][k]
+                phik = state["theta"][k]
 
                 # If they are not in collision...
                 if prel_norm > col_rad and v!=0: 
@@ -158,16 +167,16 @@ class GvfIK_CBF(Controller):
                             if abs(Lgh) > delta:
                                 psi_lgh_k.append(- psi / Lgh)
 
-                if len(psi_lgh_k) != 0:
-                    omega_min = np.min([np.min(psi_lgh_k), 0])
-                    omega_max = np.max([np.max(psi_lgh_k), 0])
+            if len(psi_lgh_k) != 0:
+                omega_min = np.min([np.min(psi_lgh_k), 0])
+                omega_max = np.max([np.max(psi_lgh_k), 0])
 
-                    if abs(omega_min) < abs(omega_max):
-                        omega_safe[i] = omega_max
-                    else:
-                        omega_safe[i] = omega_min
+                if abs(omega_min) < abs(omega_max):
+                    omega_safe[i] = omega_max
+                else:
+                    omega_safe[i] = omega_min
 
-                    self.control_vars["u"][i] += omega_safe[i]
+                self.control_vars["u"][i] += omega_safe[i]
 
         self.tracked_vars["omega_ref"] = omega_ref
         self.tracked_vars["lgh"] = lgh
@@ -184,8 +193,10 @@ class GvfIK_CBF(Controller):
         self.tracked_vars["omega_d"] = np.zeros((N))
         self.control_vars["u"] = np.zeros((N))            
         for i in range(N):
+            # Skip obstacles
             if i in self.obstacles:
                 continue
+
             # -------------------
             # GVF trajectory data
             phi = self.gvf_traj.phi(p[i,:]) # Phi value
@@ -194,6 +205,8 @@ class GvfIK_CBF(Controller):
 
             speed_i = speed[i]
             theta_i = theta[i]
+            A_fd = 0
+            omega_fd = 0
             
             s = self.s
             ke = self.ke
@@ -211,11 +224,19 @@ class GvfIK_CBF(Controller):
             J_Jt = (J1*J1 + J2*J2)
 
             # 2. Compute the feedforward error
-            cond_flag = self.check_alpha(J1, J2, phi, speed_i)
+            gamma = A_fd * np.sin(omega_fd * time)
+            gamma_dot = omega_fd * A_fd * np.cos(omega_fd * time)
 
-            e = phi
-            e_tdot = 0
-            e_tddot = 0
+            cond_flag = self.check_alpha(J1, J2, phi, gamma, gamma_dot, speed_i)
+
+            if cond_flag:
+                e = phi + gamma
+                e_tdot = gamma_dot
+                e_tddot = - (omega_fd * omega_fd) * gamma
+            else:
+                e = phi
+                e_tdot = 0
+                e_tddot = 0
             
             # 3. Compute the input term of p_dot (normal term)
             u = - ke * e

@@ -1,4 +1,2 @@
-from .gvf_ik_cbf import *
-from .gvf_ik_consensus import *
-from .gvf_ik import *
-from .oscillator import *
+from .gvfik_cbf import *
+from .gvfik import *
